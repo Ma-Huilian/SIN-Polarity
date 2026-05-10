@@ -25,10 +25,25 @@ import numpy as np
 
 
 
-#%%---- Transfer the waveforms to the corresponding folder
-'''
+#%%---- Key parameters given by user
+ 
+# Directory for storing downloaded data files
 src_dir = './2025-03-28-mw7.7-Myanmar/'
+# Event location information
+ev_lat, ev_lon, ev_depth_km = 22, 95.92, 10  
+# filter parameter
+fqmin = 0.01
+fqmax = 0.2
+# Time window range, used to capture waveform segments and use STALTA to pick first-arrival times
+winbefore = 30
+winafter = 150
+# Long term window and short term window range
+longlen = 15
+shortlen = 3
 
+
+
+#%%---- Transfer the waveforms to the corresponding folder
 #-- folder path
 dst_dir1 = './data1'
 dst_dir2 = './data2'
@@ -54,7 +69,7 @@ for fname in os.listdir(src_dir):
         shutil.move(src_path, dst_pathZ)
     
 print("finished!")
-'''
+
 
 
 #%%---- Calculate the theoretical time and capture the time window
@@ -92,7 +107,7 @@ for i in range(len(nFilesE)):
     # Remove linear trend, mean, and bandpass filtering
     ENZ.detrend( type='demean')
     ENZ.detrend( type='simple')
-    ENZ = ENZ.filter('bandpass', freqmin=0.01, freqmax=0.2, corners=4, zerophase=False)  
+    ENZ = ENZ.filter('bandpass', freqmin=fqmin, freqmax=fqmax, corners=4, zerophase=False)  
     
     ENZ_P = ENZ.copy()
     ENZ_ALL = ENZ.copy()
@@ -107,11 +122,8 @@ for i in range(len(nFilesE)):
     channelN = ENZ[1].stats.channel
     channelZ = ENZ[2].stats.channel
     
-    # Event location information
-    ev_lat, ev_lon, ev_depth_km = 22, 95.92, 10  
-    
     # Instrument response file    
-    inv = read_inventory('./2025-03-28-mw7.7-Myanmar/'+network+'.'+station+'.xml')      
+    inv = read_inventory(src_dir+network+'.'+station+'.xml')      
     netName = inv.select(network=network)
     staName = netName.select(station=station)[0][0]
     
@@ -138,13 +150,13 @@ for i in range(len(nFilesE)):
         print("No P arrival found for this geometry/model.")
     
     # Capture the time window for subsequent STA/LTA use
-    ENZ1 = ENZ_P.trim(p_abs_time-30, p_abs_time+150)
+    ENZ1 = ENZ_P.trim(p_abs_time-winbefore, p_abs_time+winafter)
     
     # vertical component
     Zsac = ENZ1[2]
     
-    nstaZ = int(3* Zsac.stats.sampling_rate)   
-    nltaZ = int(15.0* Zsac.stats.sampling_rate)   
+    nstaZ = int(shortlen * Zsac.stats.sampling_rate)   
+    nltaZ = int(longlen * Zsac.stats.sampling_rate)   
     
     # STA/LTA
     cftZ = classic_sta_lta(Zsac.data, nstaZ, nltaZ)
@@ -152,20 +164,20 @@ for i in range(len(nFilesE)):
     onsetP = imaxZ / Zsac.stats.sampling_rate - 5.5
     
     # Write as sac file
-    ENZ_ALL = ENZ_ALL.trim(p_abs_time-30, p_abs_time+150)
+    ENZ_ALL = ENZ_ALL.trim(p_abs_time-winbefore, p_abs_time+winafter)
     
     filenameE = str(network)+'.'+str(station)+'.'+str(channelE)+'.sac'
-    ENZ_ALL[0].write('./dataENZ/'+filenameE, format="SAC")
+    ENZ_ALL[0].write(resultcsv+'/'+filenameE, format="SAC")
     
     filenameN = str(network)+'.'+str(station)+'.'+str(channelN)+'.sac'
-    ENZ_ALL[1].write('./dataENZ/'+filenameN, format="SAC")
+    ENZ_ALL[1].write(resultcsv+'/'+filenameN, format="SAC")
     
     filenameZ = str(network)+'.'+str(station)+'.'+str(channelZ)+'.sac'
-    ENZ_ALL[2].write('./dataENZ/'+filenameZ, format="SAC")
+    ENZ_ALL[2].write(resultcsv+'/'+filenameZ, format="SAC")
     
     # Write as mseed file
     filename = str(network)+'.'+str(station)+'.mseed'
-    ENZ_ALL.write('./dataENZ/'+filename, format="MSEED")
+    ENZ_ALL.write(resultcsv+'/'+filename, format="MSEED")
     
     # Write component information into CSV file
     with open( outFile, mode='a', newline='' ) as fp:

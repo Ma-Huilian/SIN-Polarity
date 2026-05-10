@@ -57,7 +57,7 @@ domain = CircularDomain(latitude =lat,
                         maxradius=maxDisInDeg )
 
 restrictions = Restrictions(
-    # Get data from 30 minutes before the event to 60 minutes after the
+    # Get data from start of the event to 30 minutes after the
     # event. This defines the temporal bounds of the waveform data.
     starttime=origin_time + 0*60, 
     endtime  =origin_time + 30*60,
@@ -73,7 +73,7 @@ restrictions = Restrictions(
     # networks but at the same physical station. Settings this option to
     # zero or None will disable that filtering.
     minimum_interstation_distance_in_m = 0,
-    network = '*',
+    network = 'G, GE, GT, IU, PS', 
     station = '*',
     channel = 'BH*',
     # channel = 'BH*,HH*,EH*',

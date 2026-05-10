@@ -30,6 +30,21 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 plt.rcParams["font.family"] = "Times New Roman"
     
      
+
+#%%---- Key parameters given by user
+ 
+# Cut the time window range of noise and signal segments
+windowlength = 20
+# The signal-to-noise ratio(SNR) threshold parameter is used to screen data that meets 
+# the SNR threshold and further determine polarity
+SNRthreshold = 3
+# Directory for storing downloaded data files
+src_dir = './2025-03-28-mw7.7-Myanmar/'
+# Event location information
+ev_lat, ev_lon = 22, 95.92
+
+
+
 #%%---- Determine polarity
 def pol(st, P_pick):
     
@@ -57,10 +72,10 @@ def pol(st, P_pick):
     ENZonsetP = P_pick
             
     # Calculate SNR
-    Znosiebeg  = ENZonsetP-20.0
+    Znosiebeg  = ENZonsetP-windowlength
     Znosieend  = ENZonsetP
     Zsignalbeg = ENZonsetP
-    Zsignalend = ENZonsetP+20.0
+    Zsignalend = ENZonsetP+windowlength
 
     Znoisewave  = stZno.trim( starttime+Znosiebeg, starttime+Znosieend )
     Zsignalwave = stZsi.trim( starttime+Zsignalbeg, starttime+Zsignalend )
@@ -104,11 +119,11 @@ def pol(st, P_pick):
     '''
     
     # Pick up the polarity of station data that meets the SNR ratio threshold
-    if snrZ >= 3.0 :        
+    if snrZ >= SNRthreshold :        
 
         from obspy import read_inventory
         # Read the instrument response file
-        inv = read_inventory('./2025-03-28-mw7.7-Myanmar/'+network+'.'+station+'.xml')  
+        inv = read_inventory(src_dir+network+'.'+station+'.xml')  
         
         netName = inv.select(network=network)
         staName = netName.select(station=station)[0][0]
@@ -118,9 +133,9 @@ def pol(st, P_pick):
         
         # Calculate azimuth and epicenter distance               
         from obspy.geodetics import gps2dist_azimuth, locations2degrees
-        dist_m, azimuthEachStation, baz = gps2dist_azimuth(22.0, 95.92, staLat, staLon)
+        dist_m, azimuthEachStation, baz = gps2dist_azimuth(ev_lat, ev_lon, staLat, staLon)
         recDisInKm = dist_m / 1000
-        recDisInDeg = locations2degrees(staLat, staLon, 22.0, 95.92)
+        recDisInDeg = locations2degrees(staLat, staLon, ev_lat, ev_lon)
         
         model = TauPyModel(model="ak135")
         arrivals = model.get_ray_paths(10, recDisInDeg, phase_list=["P"])

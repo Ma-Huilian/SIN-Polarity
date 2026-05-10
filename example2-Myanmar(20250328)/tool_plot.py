@@ -20,6 +20,25 @@ plt.rcParams["font.family"] = "Times New Roman"
     
 
 
+#%%----Relevant parameters that users can change according to their actual situation
+
+# Parameter used to set the vertical spacing of the waveform
+d = 0  # initial value
+dd = 3 # interval parameter
+
+# Used to set which station data to draw. Oklahoma has 27 stations, 
+# so node 14 is selected to divide the station data sorted by station name into two parts
+num = 14
+
+# Cut the time window range of noise and signal segments
+windowlength = 20
+
+# Display waveform segments based on P-wave arrival time setting time window range
+num1 = 10 # before
+num2 = 18 # after
+
+
+
 #%%-- Read CSV file of first arrival time information 
 filePath = './templates.csv' 
 data = pd.read_csv(filePath)
@@ -40,8 +59,6 @@ dataPath = './dataENZ/'
 nFiles = fnmatch.filter( sorted(os.listdir(dataPath)), '*.mseed') 
 nFiles = sorted(nFiles, key=lambda x: x.split('.')[1], reverse=True)
 
-d = 0 #-- Parameter used to set the vertical spacing of the waveform
-
 fig = plt.figure( constrained_layout=True, figsize=(7,22))
 fig.subplots_adjust(hspace=0.1)
 fig.subplots_adjust(wspace=0.0)
@@ -49,8 +66,11 @@ gs0 = fig.add_gridspec(1, 1)
 ax0 = fig.add_subplot(gs0[0, 0])
 for idx,iFile in enumerate( nFiles ): 
     
-  # Draw the waveform in parts  
-  if idx < 14:
+  # Draw the waveform diagram of the first half
+  if idx >= num:
+      
+  # Or draw the waveform diagram of the latter half
+  # if idx < num:
     
     ENZ = obspy.read(dataPath + iFile)  
     
@@ -88,17 +108,17 @@ for idx,iFile in enumerate( nFiles ):
                 polZ = 'U'
     
     # noise segment and signal segment
-    Znosiebeg  = ENZonsetP-20.0
+    Znosiebeg  = ENZonsetP-windowlength
     Znosieend  = ENZonsetP
     Zsignalbeg = ENZonsetP
-    Zsignalend = ENZonsetP+20.0
+    Zsignalend = ENZonsetP+windowlength
     
     Znoisewave  = stZno.trim( starttime+Znosiebeg, starttime+Znosieend )
     Zsignalwave = stZsi.trim( starttime+Zsignalbeg, starttime+Zsignalend ) 
     yZ = Zsignalwave[0].data / max(np.fabs(stZ2[0].data)) #归一化用于后续计算周期
     
     # The range of the drawn waveform
-    stZ22 = stZ22.trim( starttime+Zsignalbeg-10, starttime+Zsignalbeg+18 ) 
+    stZ22 = stZ22.trim( starttime+Zsignalbeg-num1, starttime+Zsignalbeg+num2 ) 
     dataZ = stZ22[0].data / max(np.fabs(stZ22[0].data)) # Z分量  
     xZ = np.arange(0, len(dataZ), 1)
                                  
@@ -123,14 +143,15 @@ for idx,iFile in enumerate( nFiles ):
         aZ = [negPeakIdxZ[0], posPeakIdxZ[0]]
     
     # The position where the template matches
-    xSinZ = np.arange(0, len(temWaveZ), 1)+(10/delta+aZ[0]-(periodZ/4)/delta)
+    xSinZ = np.arange(0, len(temWaveZ), 1)+(num1/delta+aZ[0]-(periodZ/4)/delta)
     
+    # Draw waveform diagram
     ax0.plot(xZ*delta, dataZ+d, lw=1.6, c='black')    
     ax0.plot(xSinZ*delta, temWaveZ+d, lw=1.6, c='blue') 
     
-    ax0.vlines( 10+aZ[0]*delta, ymin=-1+d, ymax=1+d, linestyle='--', colors='blue', lw=1.3) 
-    ax0.vlines( 10+aZ[1]*delta, ymin=-1+d, ymax=1+d, linestyle='--', colors='blue', lw=1.3)     
-    ax0.vlines( 10, ymin=-0.7+d, ymax=0.7+d, linestyle='--', colors='red', lw=1.3) 
+    ax0.vlines( num1+aZ[0]*delta, ymin=-1+d, ymax=1+d, linestyle='--', colors='blue', lw=1.3) 
+    ax0.vlines( num1+aZ[1]*delta, ymin=-1+d, ymax=1+d, linestyle='--', colors='blue', lw=1.3)     
+    ax0.vlines( num1, ymin=-0.7+d, ymax=0.7+d, linestyle='--', colors='red', lw=1.3) 
     
     from obspy.geodetics import kilometers2degrees
     dist_deg = kilometers2degrees(ep)
@@ -139,11 +160,15 @@ for idx,iFile in enumerate( nFiles ):
     ax0.text(28, d+0.5, "Az="+str(az)+'°', va="center", fontsize=26)
     ax0.text(8, d+0.3, polZ, va="center", fontsize=26)
     
-    d += 3 
+    d += dd 
         
 plt.xlabel("Time(s)", fontsize=26)
 plt.tick_params(axis='x', labelsize=26)  
-plt.ylim(-1.5, 41)
+
+# Range of vertical axis in the first half
+plt.ylim(-1.5, 38)
+# Or the range of the vertical axis in the latter half 
+# plt.ylim(-1.5, 41)
 ax0.set_yticks([])
 
 ax0.spines['right'].set_color('none')
@@ -155,7 +180,12 @@ plt.tight_layout()
 corrfigurepath = './figure_polZ/'
 if not os.path.exists(corrfigurepath):
     os.makedirs(corrfigurepath )
-plt.savefig(corrfigurepath+'AllStations2.png', dpi=300)
+    
+# Save the first half of the waveform diagram
+plt.savefig(corrfigurepath+'AllStations1.png', dpi=300)
+# Or save the waveform diagram of the latter half
+# plt.savefig(corrfigurepath+'AllStations2.png', dpi=300)
+
 plt.show()
         
         
