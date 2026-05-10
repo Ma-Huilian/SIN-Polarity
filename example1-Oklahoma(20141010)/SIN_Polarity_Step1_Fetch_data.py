@@ -6,7 +6,7 @@ Created on Mon Apr 15 14:53:55 2019
 @author: jianlongyuan
 
 Function: This script can be used to obtain Miniseed waveform data and
-          instrument response XML files from IRIS DMC directly for DSA
+          instrument response XML files from IRIS 
 
 reference；
     https://docs.obspy.org/packages/autogen/obspy.clients.fdsn.mass_downloader.html
