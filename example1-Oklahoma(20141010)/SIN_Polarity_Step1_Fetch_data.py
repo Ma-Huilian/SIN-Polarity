@@ -3,7 +3,7 @@
 """
 Created on Mon Apr 15 14:53:55 2019
 
-@author: jianlongyuan
+@author: Jianlong Yuan
 
 Function: This script can be used to obtain Miniseed waveform data and
           instrument response XML files from IRIS 
@@ -16,7 +16,7 @@ from obspy.clients.fdsn import Client
 from obspy import UTCDateTime
 from obspy.clients.fdsn.mass_downloader import CircularDomain, Restrictions, MassDownloader
     
-#-------- Key parameters given by user
+#-------- Key parameters defined by user
 #-- Directory defined for storing data 
 eventPath = './2014-10-10-mb4.5-Oklahoma/'
 #-- Event origin time (refer to the report of IRIS, ISC, USGS, etc )
@@ -34,7 +34,7 @@ clientName = "IRIS"
 if not os.path.exists(str(eventPath)):
     os.mkdir(str(eventPath))
 #-- fetch the event parameters and save as a xml format file
-client      = Client(clientName)
+client = Client(clientName)
 catalog = client.get_events( starttime = origin_time - 60,
                              endtime   = origin_time + 60,
                              latitude  = lat,
@@ -89,5 +89,3 @@ mdl = MassDownloader()
 mdl.download(domain, restrictions, threads_per_client=3,
              mseed_storage=eventPath,
              stationxml_storage=eventPath)
-
-
