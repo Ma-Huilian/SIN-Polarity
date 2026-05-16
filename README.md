@@ -17,8 +17,8 @@ SIN-Polarity/
 │   ├── 2014-10-10-mb4.5-Oklahoma/        # Raw waveform data (MSEED) and instrument response files (XML)
 │   ├── phasenet/                         # PhaseNet source code for P-wave arrival picking
 │   ├── model/                            # Pre-trained PhaseNet model
-│   ├── SIN_Polarity_Step1_Fetch_data.py  # Step 1: Download data from IRIS
-│   ├── SIN_Polarity_Step2_First_arrival_picking.py  # Step 2: Pick P-wave arrival
+│   ├── SIN_Polarity_Step1_Fetch_data.py               # Step 1: Download data from IRIS
+│   ├── SIN_Polarity_Step2_First_arrival_picking.py    # Step 2: Pick P-wave arrival
 │   ├── SIN_Polarity_Step3_Polarity_identification.py  # Step 3: Determine polarity
 │   └── tool_plot.py                      # Visualization tool
 │
@@ -145,5 +145,10 @@ If you already have P-wave first arrival times from public datasets or other pic
 ## Contact
 
 Any questions or advices? Please contact:
-- huilianma@stu.cdut.edu.cn
-- jianlongyuan@cdut.edu.cn
+- huilianma@stu.cdut.edu.cn  (Huilian Ma)
+- jianlongyuan@cdut.edu.cn   (Jianlong Yuan)
+- j.yu@cdut.edu.cn           (Jiashun Yu)
+- daweigao666@163.com        (Dawei Gao)
+- 1716136870@qq.com          (Shaojie Zhang)
+- 1048087167@qq.com          (Cong Wang)
+- 2533511481@qq.com          (Xinran Fan)
