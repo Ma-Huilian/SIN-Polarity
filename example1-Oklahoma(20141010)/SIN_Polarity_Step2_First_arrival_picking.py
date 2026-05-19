@@ -3,10 +3,10 @@
 """
 Created in 2024
 
-@author: jianlongyuan and huilianma
+@author: Jianlong Yuan and Huilian Ma
 
 Function: This script can be used for data processing 
-           and calling PhaseNet(Zhu and Beroza, 2019) to obtain P-wave arrival time
+           and calling PhaseNet(Zhu and Beroza, 2019) to pick P-wave arrival time
 
  
 """
@@ -25,7 +25,7 @@ from obspy import read_inventory
 
 #%%---- Key parameters given by user
  
-# Directory for storing downloaded data files
+# Directory for downloaded data
 src_dir = './2014-10-10-mb4.5-Oklahoma/'
 # Event location information
 ev_lat, ev_lon, ev_depth_km = 35.9677, -96.7344, 15.9 
